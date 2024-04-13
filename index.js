@@ -48,7 +48,7 @@ const createPage = async(article, completed) => {
       },
       "Subjects": {
         type: "multi_select",
-        multi_select: article.tags.map(t => ({ name: t }))
+        multi_select: article.tags?.map(t => ({ name: t })) || []
       },
       "Complexity": {
         type: "rich_text",
@@ -74,7 +74,7 @@ const createPage = async(article, completed) => {
 
 const scrapeDailyDev = (text, url) => {
   const getTitle = () => {
-    const regex = /title="Go to post" target="_blank" rel="noopener">(.+)<\/a>/
+    const regex = /title="Go to post" target="_blank" rel="noopener">(.+?)<\/a>/
 
     return text.match(regex)[1]
   };
@@ -86,9 +86,12 @@ const scrapeDailyDev = (text, url) => {
   };
 
   const getTags = () => {
-    const regex = /"tags":\[(.+?)\],/
+    const regex = /"tags":\[(.*?)\],/
 
     const tags = text.match(regex)[1]
+    
+    if(!tags)
+      return null
 
     return tags.replaceAll(`"`, "").split(",")
   }
@@ -133,7 +136,7 @@ const scrapeDailyDev = (text, url) => {
     title: getTitle(),
     url: url,
     summary: getSummary(),
-    tags: getTags(),
+    tags: getTags() || [],
     complexity: getComplexity()
   }
 };
@@ -142,7 +145,6 @@ const getPagesData = async(urls, tries) => {
   if(tries > 5) {
     return false
   }
-  
   try {
     const pages = await Promise.all(urls.map(p => fetch(p).then(res => res.text())))
 
