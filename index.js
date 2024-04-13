@@ -139,16 +139,22 @@ const scrapeDailyDev = (text, url) => {
 };
 
 app.post('/scrape', async(req, res) => {
+  try {
   const pages = await Promise.all(req.body.map(p => fetch(p).then(res => res.text())))
 
   const pagesData = pages.map((p, i) => scrapeDailyDev(p, req.body[i]))
-  
+
   await Promise.map(pagesData, page => createPage(page), { concurrency: 1 })
 
   res.sendStatus(200)
+  }
+  catch(e) {
+    res.sendStatus(500)
+  }
 })
 
 app.post('/scrape-completed', async(req, res) => {
+  try {
   const pages = await Promise.all(req.body.map(p => fetch(p).then(res => res.text())))
 
   const pagesData = pages.map((p, i) => scrapeDailyDev(p, req.body[i]))
@@ -156,8 +162,13 @@ app.post('/scrape-completed', async(req, res) => {
   await Promise.map(pagesData, page => createPage(page, true), { concurrency: 1 })
 
   res.sendStatus(200)
+  }
+  catch(e) {
+    res.sendStatus(500)
+}
 })
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
+
 })
