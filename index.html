@@ -4,25 +4,33 @@
 <title>Page Title</title>
 
 <script>
-	const scrape = () => {
-		fetch("https://daily-dev-scraper.onrender.com/scrape", { method: "POST", body: JSON.stringify(this.links.value.split(",")), 
+	const scrape = async() => {
+		const res = await fetch("https://daily-dev-scraper.onrender.com/scrape", { method: "POST", body: JSON.stringify(this.links.value.split(",")), 
 			mode: "cors",
 			headers: {
       "Content-Type": "application/json",
 				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
     }})
-		this.links.value = ""
+
+		if(res.status === 200) {
+			this.links.value = ""
+		}
+
 		return false
 	}
 
-	const scrapeCompleted = () => {
-		fetch("https://daily-dev-scraper.onrender.com/scrape-completed", { method: "POST", body: JSON.stringify(this.links2.value.split(",")), 
+	const scrapeCompleted = async() => {
+		const res = await fetch("https://daily-dev-scraper.onrender.com/scrape-completed", { method: "POST", body: JSON.stringify(this.links2.value.split(",")), 
 			mode: "cors",
 			headers: {
       "Content-Type": "application/json",
 				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
     }})
-		this.links2.value = ""
+
+		if(res.status === 200) {
+			this.links2.value = ""
+		}
+
 		return false
 	}
 </script>

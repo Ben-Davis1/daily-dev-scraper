@@ -138,11 +138,23 @@ const scrapeDailyDev = (text, url) => {
   }
 };
 
+const getPagesData = async(urls, tries) => {
+  if(tries > 5) {
+    return false
+  }
+  
+  try {
+    const pages = await Promise.all(urls.map(p => fetch(p).then(res => res.text())))
+
+    return pages.map((p, i) => scrapeDailyDev(p, urls[i]))
+  } catch(e) {
+    return getPagesData(urls, tries + 1)
+  }
+};
+
 app.post('/scrape', async(req, res) => {
   try {
-  const pages = await Promise.all(req.body.map(p => fetch(p).then(res => res.text())))
-
-  const pagesData = pages.map((p, i) => scrapeDailyDev(p, req.body[i]))
+  const pagesData = await getPagesData(req.body, 0)
 
   await Promise.map(pagesData, page => createPage(page), { concurrency: 1 })
 
@@ -155,9 +167,7 @@ app.post('/scrape', async(req, res) => {
 
 app.post('/scrape-completed', async(req, res) => {
   try {
-  const pages = await Promise.all(req.body.map(p => fetch(p).then(res => res.text())))
-
-  const pagesData = pages.map((p, i) => scrapeDailyDev(p, req.body[i]))
+  const pagesData = await getPagesData(req.body, 0)
   
   await Promise.map(pagesData, page => createPage(page, true), { concurrency: 1 })
 
